@@ -44,7 +44,6 @@ const productCard = ({images, description, price, title}) => {
 
 const store = {
   setLocalStore: ({key, value}) => {
-    console.log(key, value)
     localStorage.setItem(key, value)
   },
   getLocalStore: key => localStorage.getItem(key),
@@ -54,40 +53,50 @@ const store = {
 /* LocalStorage END */
 
 const getData = api => {
-  fetch(api)
+  return fetch(api)
     .then(response => response.json())
     .then(response => {
-      let products = response
-      let output = products.map(product => {
-        const {images, description} = product
-        const card = productCard(product)
-        // template
-        let newItem = document.createElement('section')
-        newItem.classList.add('Item')
-        newItem.innerHTML = card
-        $items.appendChild(newItem)
-        return product
-      })
-      console.log({output, size: output.length})
+      return response
     })
     .catch(error => console.log(error))
 }
 
+const renderProducts = products => {
+  products.map(product => {
+    const card = productCard(product)
+    // template
+    let newItem = document.createElement('div')
+    newItem.classList.add('Item')
+    newItem.innerHTML = card
+    $items.appendChild(newItem)
+    return product
+  })
+}
+
+const disabledInfiniteScroll = () => {
+  intersectionObserver.disconnect()
+  messageAllProductsGetted()
+}
+
 const loadData = async ({offset, limit}) => {
   try {
-    await getData(`${API}?offset=${offset}&limit=${limit}`)
+    const response = await getData(`${API}?offset=${offset}&limit=${limit}`)
+    if (!response.length) disabledInfiniteScroll()
+
+    renderProducts(response)
     const pagination = store.getLocalStore('pagination')
-    if (Number(pagination) <= 200) return
-    intersectionObserver.disconnect()
-    messageAllProductsGetted()
-  } catch (error) {}
+  } catch (error) {
+    console.error({
+      error,
+    })
+  }
 }
 
 const intersectionObserver = new IntersectionObserver(
   entries => {
     // logic...
     entries.forEach(entry => {
-      if (!entry.intersectionRatio) return 
+      if (!entry.intersectionRatio) return
       const pagination = store.getLocalStore('pagination') ?? defaultOffset
       const nextPagination = Number(pagination) + LIMIT
       loadData({
@@ -95,10 +104,7 @@ const intersectionObserver = new IntersectionObserver(
         limit: LIMIT,
       })
 
-      console.log({pagination, newPagination: nextPagination})
-
       store.setLocalStore({key: 'pagination', value: nextPagination})
-      console.log('Look')
     })
   },
   {
@@ -109,7 +115,7 @@ const intersectionObserver = new IntersectionObserver(
 
 intersectionObserver.observe($observe)
 
-/* RESTart LOCAl */
+/* Reset storage */
 window.addEventListener('beforeunload', event => {
   store.clear()
 })
@@ -117,3 +123,5 @@ window.addEventListener('beforeunload', event => {
 window.onunload = function (e) {
   store.clear()
 }
+
+/* Reset storage END */
