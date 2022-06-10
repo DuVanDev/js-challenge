@@ -1,5 +1,4 @@
 const $app = document.getElementById('app')
-const $items = document.getElementById('items')
 const $observe = document.getElementById('observe')
 const API = 'https://api.escuelajs.co/api/v1/products'
 
@@ -62,15 +61,17 @@ const getData = api => {
 }
 
 const renderProducts = products => {
-  products.map(product => {
+  const output = products.map(product => {
     const card = productCard(product)
     // template
-    let newItem = document.createElement('div')
-    newItem.classList.add('Item')
-    newItem.innerHTML = card
-    $items.appendChild(newItem)
-    return product
+
+    return card
   })
+
+  let newItem = document.createElement('section')
+  newItem.classList.add('Items')
+  newItem.innerHTML = output.join('')
+  $app.appendChild(newItem)
 }
 
 const disabledInfiniteScroll = () => {
@@ -97,14 +98,20 @@ const intersectionObserver = new IntersectionObserver(
     // logic...
     entries.forEach(entry => {
       if (!entry.intersectionRatio) return
-      const pagination = store.getLocalStore('pagination') ?? defaultOffset
-      const nextPagination = Number(pagination) + LIMIT
+
+      const pagination = store.getLocalStore('pagination')
+        ? Number(store.getLocalStore('pagination')) + LIMIT
+        : defaultOffset
       loadData({
         offset: pagination,
         limit: LIMIT,
       })
 
-      store.setLocalStore({key: 'pagination', value: nextPagination})
+      if (!store.getLocalStore('pagination')) {
+        store.setLocalStore({key: 'pagination', value: defaultOffset})
+        return
+      }
+      store.setLocalStore({key: 'pagination', value: pagination})
     })
   },
   {
