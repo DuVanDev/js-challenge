@@ -4,7 +4,7 @@ const $observe = document.getElementById('observe')
 const API = 'https://api.escuelajs.co/api/v1/products'
 
 /* Pagination Variables */
-const defaultOffset = '180'
+const defaultOffset = '5'
 const LIMIT = 10
 
 /* Message All products */
@@ -86,20 +86,24 @@ const loadData = async ({offset, limit}) => {
 const intersectionObserver = new IntersectionObserver(
   entries => {
     // logic...
-    const pagination = store.getLocalStore('pagination') ?? defaultOffset
-    const nextPagination = Number(pagination) + LIMIT
-    loadData({
-      offset: pagination,
-      limit: LIMIT,
+    entries.forEach(entry => {
+      if (!entry.intersectionRatio) return 
+      const pagination = store.getLocalStore('pagination') ?? defaultOffset
+      const nextPagination = Number(pagination) + LIMIT
+      loadData({
+        offset: pagination,
+        limit: LIMIT,
+      })
+
+      console.log({pagination, newPagination: nextPagination})
+
+      store.setLocalStore({key: 'pagination', value: nextPagination})
+      console.log('Look')
     })
-
-    console.log({pagination, newPagination: nextPagination})
-
-    store.setLocalStore({key: 'pagination', value: nextPagination})
-    console.log('Look')
   },
   {
-    rootMargin: '0px 0px 100% 0px',
+    rootMargin: '20px 20px 100% 20px',
+    threshold: 0.1,
   },
 )
 
