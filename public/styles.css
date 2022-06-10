@@ -1,10 +1,15 @@
-@import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400&display=swap");
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400&display=swap');
+
+:root {
+  --background-color: #121f3d;
+}
 
 body {
   margin: 0;
   padding: 0;
-  color: #3c484e;
-  font-family: "Open Sans", sans-serif;
+  color: #ffffff;
+  font-family: 'Open Sans', sans-serif;
+  background: var(--background-color);
 }
 
 .Main {
@@ -23,6 +28,9 @@ body {
 
 .Card {
   text-decoration: none;
+  height: 100%;
+  min-height: 500px;
+  border: 1px solid #fff;
   box-shadow: 8px 14px 38px rgba(39, 44, 49, 0.06),
     1px 3px 8px rgba(39, 44, 49, 0.03);
   border-radius: 5px;
@@ -44,6 +52,13 @@ body {
   padding: 5px 10px;
   display: flex;
   justify-content: space-between;
+}
+
+.loaded-message {
+  color: #fff;
+  text-align: center;
+  font-size: 20px;
+  margin: 10px;
 }
 
 @keyframes fade {
